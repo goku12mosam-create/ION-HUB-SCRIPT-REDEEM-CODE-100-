@@ -1,0 +1,538 @@
+--// ION HUB 100% - Steal a Brainrot (Black & White Edition)
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CoreGui = game:GetService("CoreGui")
+local TextChatService = game:GetService("TextChatService")
+
+local LocalPlayer = Players.LocalPlayer
+
+pcall(function()
+    if CoreGui:FindFirstChild("ION_HUB_100_SAB") then
+        CoreGui:FindFirstChild("ION_HUB_100_SAB"):Destroy()
+    end
+end)
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ION_HUB_100_SAB"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local okParent = pcall(function()
+    ScreenGui.Parent = CoreGui
+end)
+if not okParent then
+    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+end
+
+--==================================================
+-- 1. أنميشن البداية (ION HUB 100%)
+--==================================================
+local Intro = Instance.new("Frame")
+Intro.Size = UDim2.new(0, 320, 0, 110)
+Intro.Position = UDim2.new(0.5, -160, 0.5, -55)
+Intro.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Intro.BackgroundTransparency = 1
+Intro.BorderSizePixel = 0
+Intro.Parent = ScreenGui
+Instance.new("UICorner", Intro).CornerRadius = UDim.new(0, 12)
+
+local IntroStroke = Instance.new("UIStroke", Intro)
+IntroStroke.Color = Color3.fromRGB(255, 255, 255)
+IntroStroke.Thickness = 2
+IntroStroke.Transparency = 1
+
+local IntroTitle = Instance.new("TextLabel")
+IntroTitle.Size = UDim2.new(1, 0, 0, 44)
+IntroTitle.Position = UDim2.new(0, 0, 0, 16)
+IntroTitle.BackgroundTransparency = 1
+IntroTitle.Text = "ION HUB 100%"
+IntroTitle.Font = Enum.Font.GothamBlack
+IntroTitle.TextSize = 26
+IntroTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+IntroTitle.TextTransparency = 1
+IntroTitle.Parent = Intro
+
+local IntroSub = Instance.new("TextLabel")
+IntroSub.Size = UDim2.new(1, 0, 0, 18)
+IntroSub.Position = UDim2.new(0, 0, 0, 56)
+IntroSub.BackgroundTransparency = 1
+IntroSub.Text = "STEAL A BRAINROT • SNIPE ENGINE"
+IntroSub.Font = Enum.Font.GothamBold
+IntroSub.TextSize = 10
+IntroSub.TextColor3 = Color3.fromRGB(185, 185, 185)
+IntroSub.TextTransparency = 1
+IntroSub.Parent = Intro
+
+local BarBg = Instance.new("Frame")
+BarBg.Size = UDim2.new(0.8, 0, 0, 4)
+BarBg.Position = UDim2.new(0.1, 0, 0, 84)
+BarBg.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+BarBg.BorderSizePixel = 0
+BarBg.BackgroundTransparency = 1
+BarBg.Parent = Intro
+Instance.new("UICorner", BarBg).CornerRadius = UDim.new(1, 0)
+
+local BarFill = Instance.new("Frame")
+BarFill.Size = UDim2.new(0, 0, 1, 0)
+BarFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+BarFill.BorderSizePixel = 0
+BarFill.Parent = BarBg
+Instance.new("UICorner", BarFill).CornerRadius = UDim.new(1, 0)
+
+TweenService:Create(Intro, TweenInfo.new(0.35), {BackgroundTransparency = 0.05}):Play()
+TweenService:Create(IntroStroke, TweenInfo.new(0.35), {Transparency = 0}):Play()
+TweenService:Create(IntroTitle, TweenInfo.new(0.35), {TextTransparency = 0}):Play()
+TweenService:Create(IntroSub, TweenInfo.new(0.35), {TextTransparency = 0}):Play()
+TweenService:Create(BarBg, TweenInfo.new(0.35), {BackgroundTransparency = 0}):Play()
+task.wait(0.2)
+TweenService:Create(BarFill, TweenInfo.new(0.85, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 1, 0)}):Play()
+task.wait(1.0)
+for _, inst in ipairs({Intro, IntroStroke, IntroTitle, IntroSub, BarBg, BarFill}) do
+    if inst:IsA("Frame") then
+        TweenService:Create(inst, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+    elseif inst:IsA("UIStroke") then
+        TweenService:Create(inst, TweenInfo.new(0.25), {Transparency = 1}):Play()
+    elseif inst:IsA("TextLabel") then
+        TweenService:Create(inst, TweenInfo.new(0.25), {TextTransparency = 1}):Play()
+    end
+end
+task.wait(0.28)
+Intro:Destroy()
+
+--==================================================
+-- 2. حالة السكربت
+--==================================================
+local Config = {
+    ScriptEnabled = true, -- زر تشغيل وإطفاء السكربت بالكامل (ON / OFF)
+    AutoSubmit = true,
+    RiddleSolver = true,
+    RedeemMode = 2,
+    AutoRetypeInvalid = true,
+    MenuOpen = true,
+    Minimized = false
+}
+
+local Fragments = {}
+local LastSubmitted = ""
+local LastSpawnedCheck = ""
+
+--==================================================
+-- 3. الشريط العلوي (Top Pill Bar)
+--==================================================
+local TopBar = Instance.new("Frame")
+TopBar.Size = UDim2.new(0, 315, 0, 34)
+TopBar.Position = UDim2.new(0.5, -157, 0, 8)
+TopBar.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+TopBar.BorderSizePixel = 0
+TopBar.Parent = ScreenGui
+Instance.new("UICorner", TopBar).CornerRadius = UDim.new(1, 0)
+local TopStroke = Instance.new("UIStroke", TopBar)
+TopStroke.Color = Color3.fromRGB(255, 255, 255)
+TopStroke.Thickness = 1.5
+
+local TopLogo = Instance.new("TextLabel", TopBar)
+TopLogo.Size = UDim2.new(0, 100, 1, 0)
+TopLogo.Position = UDim2.new(0, 12, 0, 0)
+TopLogo.BackgroundTransparency = 1
+TopLogo.Text = "ION HUB 100%"
+TopLogo.Font = Enum.Font.GothamBlack
+TopLogo.TextSize = 11
+TopLogo.TextColor3 = Color3.fromRGB(255, 255, 255)
+TopLogo.TextXAlignment = Enum.TextXAlignment.Left
+
+local TopStatusBtn = Instance.new("TextButton", TopBar)
+TopStatusBtn.Size = UDim2.new(0, 122, 0, 22)
+TopStatusBtn.Position = UDim2.new(0, 116, 0.5, -11)
+TopStatusBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TopStatusBtn.Text = "SCRIPT: ON"
+TopStatusBtn.Font = Enum.Font.GothamBold
+TopStatusBtn.TextSize = 9
+TopStatusBtn.TextColor3 = Color3.fromRGB(10, 10, 10)
+Instance.new("UICorner", TopStatusBtn).CornerRadius = UDim.new(1, 0)
+
+local TopMenuBtn = Instance.new("TextButton", TopBar)
+TopMenuBtn.Size = UDim2.new(0, 56, 0, 22)
+TopMenuBtn.Position = UDim2.new(1, -64, 0.5, -11)
+TopMenuBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+TopMenuBtn.Text = "MENU"
+TopMenuBtn.Font = Enum.Font.GothamBold
+TopMenuBtn.TextSize = 10
+TopMenuBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", TopMenuBtn).CornerRadius = UDim.new(1, 0)
+local TopMenuStroke = Instance.new("UIStroke", TopMenuBtn)
+TopMenuStroke.Color = Color3.fromRGB(255, 255, 255)
+TopMenuStroke.Thickness = 1
+
+--==================================================
+-- 4. الواجهة الرئيسية (Black & White)
+--==================================================
+local FullSize = UDim2.new(0, 340, 0, 445)
+local MiniSize = UDim2.new(0, 340, 0, 46)
+
+local Main = Instance.new("Frame")
+Main.Size = FullSize
+Main.Position = UDim2.new(0.5, -170, 0.5, -210)
+Main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Main.BorderSizePixel = 0
+Main.Active = true
+Main.Draggable = true
+Main.Parent = ScreenGui
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 12)
+local MainStroke = Instance.new("UIStroke", Main)
+MainStroke.Color = Color3.fromRGB(255, 255, 255)
+MainStroke.Thickness = 1.8
+
+local TitleLbl = Instance.new("TextLabel", Main)
+TitleLbl.Size = UDim2.new(1, -105, 0, 20)
+TitleLbl.Position = UDim2.new(0, 14, 0, 8)
+TitleLbl.BackgroundTransparency = 1
+TitleLbl.Text = "ION HUB 100%  |  CODE REDEEMER"
+TitleLbl.Font = Enum.Font.GothamBlack
+TitleLbl.TextSize = 12
+TitleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+local SubLbl = Instance.new("TextLabel", Main)
+SubLbl.Size = UDim2.new(1, -105, 0, 14)
+SubLbl.Position = UDim2.new(0, 14, 0, 27)
+SubLbl.BackgroundTransparency = 1
+SubLbl.Text = "SNIPE ENGINE • STEAL A BRAINROT"
+SubLbl.Font = Enum.Font.Gotham
+SubLbl.TextSize = 9
+SubLbl.TextColor3 = Color3.fromRGB(170, 170, 170)
+SubLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+-- زر التصغير (-) حدا زر الإغلاق (X)
+local MinBtn = Instance.new("TextButton", Main)
+MinBtn.Size = UDim2.new(0, 26, 0, 22)
+MinBtn.Position = UDim2.new(1, -64, 0, 11)
+MinBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+MinBtn.Text = "-"
+MinBtn.Font = Enum.Font.GothamBlack
+MinBtn.TextSize = 14
+MinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 6)
+local MinStroke = Instance.new("UIStroke", MinBtn)
+MinStroke.Color = Color3.fromRGB(255, 255, 255)
+MinStroke.Thickness = 1
+
+local CloseBtn = Instance.new("TextButton", Main)
+CloseBtn.Size = UDim2.new(0, 28, 0, 22)
+CloseBtn.Position = UDim2.new(1, -34, 0, 11)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.Text = "X"
+CloseBtn.Font = Enum.Font.GothamBlack
+CloseBtn.TextSize = 11
+CloseBtn.TextColor3 = Color3.fromRGB(10, 10, 10)
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
+
+-- حاوية المحتوى القابل للتصغير
+local BodyContainer = Instance.new("Frame", Main)
+BodyContainer.Size = UDim2.new(1, 0, 1, -46)
+BodyContainer.Position = UDim2.new(0, 0, 0, 46)
+BodyContainer.BackgroundTransparency = 1
+BodyContainer.ClipsDescendants = true
+
+-- Tabs
+local Tabs = Instance.new("Frame", BodyContainer)
+Tabs.Size = UDim2.new(1, -24, 0, 28)
+Tabs.Position = UDim2.new(0, 12, 0, 2)
+Tabs.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+Tabs.BorderSizePixel = 0
+Instance.new("UICorner", Tabs).CornerRadius = UDim.new(0, 6)
+
+local MainTab = Instance.new("TextButton", Tabs)
+MainTab.Size = UDim2.new(0.5, -2, 1, -4)
+MainTab.Position = UDim2.new(0, 2, 0, 2)
+MainTab.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+MainTab.Text = "MAIN"
+MainTab.Font = Enum.Font.GothamBlack
+MainTab.TextSize = 11
+MainTab.TextColor3 = Color3.fromRGB(10, 10, 10)
+Instance.new("UICorner", MainTab).CornerRadius = UDim.new(0, 5)
+
+local HelperTab = Instance.new("TextButton", Tabs)
+HelperTab.Size = UDim2.new(0.5, -2, 1, -4)
+HelperTab.Position = UDim2.new(0.5, 0, 0, 2)
+HelperTab.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+HelperTab.Text = "HELPER"
+HelperTab.Font = Enum.Font.GothamBold
+HelperTab.TextSize = 11
+HelperTab.TextColor3 = Color3.fromRGB(210, 210, 210)
+Instance.new("UICorner", HelperTab).CornerRadius = UDim.new(0, 5)
+
+local MainPage = Instance.new("Frame", BodyContainer)
+MainPage.Size = UDim2.new(1, -24, 1, -54)
+MainPage.Position = UDim2.new(0, 12, 0, 36)
+MainPage.BackgroundTransparency = 1
+
+local HelperPage = Instance.new("Frame", BodyContainer)
+HelperPage.Size = UDim2.new(1, -24, 1, -54)
+HelperPage.Position = UDim2.new(0, 12, 0, 36)
+HelperPage.BackgroundTransparency = 1
+HelperPage.Visible = false
+
+local function MakeCard(parent, pos, size)
+    local f = Instance.new("Frame", parent)
+    f.Position = pos
+    f.Size = size
+    f.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+    f.BorderSizePixel = 0
+    Instance.new("UICorner", f).CornerRadius = UDim.new(0, 8)
+    local s = Instance.new("UIStroke", f)
+    s.Color = Color3.fromRGB(70, 70, 70)
+    s.Thickness = 1
+    return f
+end
+
+local function MakeToggle(parent, state)
+    local b = Instance.new("TextButton", parent)
+    b.Size = UDim2.new(0, 42, 0, 24)
+    b.Position = UDim2.new(1, -48, 0.5, -12)
+    b.Font = Enum.Font.GothamBlack
+    b.TextSize = 10
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
+    local function Refresh(val)
+        b.Text = val and "ON" or "OFF"
+        b.BackgroundColor3 = val and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(38, 38, 38)
+        b.TextColor3 = val and Color3.fromRGB(10, 10, 10) or Color3.fromRGB(200, 200, 200)
+    end
+    Refresh(state)
+    return b, Refresh
+end
+
+-- بطاقة تشغيل/إطفاء السكربت بالكامل (SCRIPT ON / OFF)
+local cScript = MakeCard(MainPage, UDim2.new(0, 0, 0, 0), UDim2.new(1, 0, 0, 38))
+local lScript = Instance.new("TextLabel", cScript)
+lScript.Size = UDim2.new(0.7, 0, 1, 0)
+lScript.Position = UDim2.new(0, 10, 0, 0)
+lScript.BackgroundTransparency = 1
+lScript.Text = "SCRIPT POWER (ON / OFF)"
+lScript.Font = Enum.Font.GothamBlack
+lScript.TextSize = 10
+lScript.TextColor3 = Color3.fromRGB(255, 255, 255)
+lScript.TextXAlignment = Enum.TextXAlignment.Left
+local scriptBtn, refreshScript = MakeToggle(cScript, Config.ScriptEnabled)
+
+-- AUTO SUBMIT
+local c1 = MakeCard(MainPage, UDim2.new(0, 0, 0, 44), UDim2.new(0.485, 0, 0, 46))
+local l1 = Instance.new("TextLabel", c1)
+l1.Size = UDim2.new(1, -55, 0, 18)
+l1.Position = UDim2.new(0, 8, 0, 5)
+l1.BackgroundTransparency = 1
+l1.Text = "AUTO SUBMIT"
+l1.Font = Enum.Font.GothamBold
+l1.TextSize = 10
+l1.TextColor3 = Color3.fromRGB(255, 255, 255)
+l1.TextXAlignment = Enum.TextXAlignment.Left
+
+local s1 = Instance.new("TextLabel", c1)
+s1.Size = UDim2.new(1, -55, 0, 14)
+s1.Position = UDim2.new(0, 8, 0, 23)
+s1.BackgroundTransparency = 1
+s1.Text = "send at max"
+s1.Font = Enum.Font.Gotham
+s1.TextSize = 8
+s1.TextColor3 = Color3.fromRGB(165, 165, 165)
+s1.TextXAlignment = Enum.TextXAlignment.Left
+local autoBtn, refreshAuto = MakeToggle(c1, Config.AutoSubmit)
+
+-- RIDDLE SOLVER
+local c2 = MakeCard(MainPage, UDim2.new(0.515, 0, 0, 44), UDim2.new(0.485, 0, 0, 46))
+local l2 = Instance.new("TextLabel", c2)
+l2.Size = UDim2.new(1, -55, 0, 18)
+l2.Position = UDim2.new(0, 8, 0, 5)
+l2.BackgroundTransparency = 1
+l2.Text = "RIDDLE SOLVER"
+l2.Font = Enum.Font.GothamBold
+l2.TextSize = 9
+l2.TextColor3 = Color3.fromRGB(255, 255, 255)
+l2.TextXAlignment = Enum.TextXAlignment.Left
+
+local s2 = Instance.new("TextLabel", c2)
+s2.Size = UDim2.new(1, -55, 0, 14)
+s2.Position = UDim2.new(0, 8, 0, 23)
+s2.BackgroundTransparency = 1
+s2.Text = "AI + local fallback"
+s2.Font = Enum.Font.Gotham
+s2.TextSize = 8
+s2.TextColor3 = Color3.fromRGB(165, 165, 165)
+s2.TextXAlignment = Enum.TextXAlignment.Left
+local riddleBtn, refreshRiddle = MakeToggle(c2, Config.RiddleSolver)
+
+-- REDEEM MODE
+local c3 = MakeCard(MainPage, UDim2.new(0, 0, 0, 96), UDim2.new(1, 0, 0, 42))
+local l3 = Instance.new("TextLabel", c3)
+l3.Size = UDim2.new(0.6, 0, 0, 18)
+l3.Position = UDim2.new(0, 10, 0, 4)
+l3.BackgroundTransparency = 1
+l3.Text = "REDEEM MODE"
+l3.Font = Enum.Font.GothamBold
+l3.TextSize = 10
+l3.TextColor3 = Color3.fromRGB(255, 255, 255)
+l3.TextXAlignment = Enum.TextXAlignment.Left
+
+local s3 = Instance.new("TextLabel", c3)
+s3.Size = UDim2.new(0.6, 0, 0, 14)
+s3.Position = UDim2.new(0, 10, 0, 22)
+s3.BackgroundTransparency = 1
+s3.Text = "fragments required before submit"
+s3.Font = Enum.Font.Gotham
+s3.TextSize = 8
+s3.TextColor3 = Color3.fromRGB(165, 165, 165)
+s3.TextXAlignment = Enum.TextXAlignment.Left
+
+local minusBtn = Instance.new("TextButton", c3)
+minusBtn.Size = UDim2.new(0, 26, 0, 24)
+minusBtn.Position = UDim2.new(1, -94, 0.5, -12)
+minusBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+minusBtn.Text = "-"
+minusBtn.Font = Enum.Font.GothamBlack
+minusBtn.TextSize = 14
+minusBtn.TextColor3 = Color3.fromRGB(10, 10, 10)
+Instance.new("UICorner", minusBtn).CornerRadius = UDim.new(0, 6)
+
+local modeLbl = Instance.new("TextLabel", c3)
+modeLbl.Size = UDim2.new(0, 30, 0, 24)
+modeLbl.Position = UDim2.new(1, -65, 0.5, -12)
+modeLbl.BackgroundTransparency = 1
+modeLbl.Text = tostring(Config.RedeemMode)
+modeLbl.Font = Enum.Font.GothamBlack
+modeLbl.TextSize = 13
+modeLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local plusBtn = Instance.new("TextButton", c3)
+plusBtn.Size = UDim2.new(0, 26, 0, 24)
+plusBtn.Position = UDim2.new(1, -34, 0.5, -12)
+plusBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+plusBtn.Text = "+"
+plusBtn.Font = Enum.Font.GothamBlack
+plusBtn.TextSize = 14
+plusBtn.TextColor3 = Color3.fromRGB(10, 10, 10)
+Instance.new("UICorner", plusBtn).CornerRadius = UDim.new(0, 6)
+
+-- AUTO RETYPE INVALID
+local c4 = MakeCard(MainPage, UDim2.new(0, 0, 0, 144), UDim2.new(1, 0, 0, 34))
+local l4 = Instance.new("TextLabel", c4)
+l4.Size = UDim2.new(0.7, 0, 1, 0)
+l4.Position = UDim2.new(0, 10, 0, 0)
+l4.BackgroundTransparency = 1
+l4.Text = "AUTO RETYPE INVALID"
+l4.Font = Enum.Font.GothamBold
+l4.TextSize = 10
+l4.TextColor3 = Color3.fromRGB(255, 255, 255)
+l4.TextXAlignment = Enum.TextXAlignment.Left
+local retypeBtn, refreshRetype = MakeToggle(c4, Config.AutoRetypeInvalid)
+
+-- LOG BOX
+local logCard = MakeCard(MainPage, UDim2.new(0, 0, 0, 184), UDim2.new(1, 0, 0, 92))
+local logTitle = Instance.new("TextLabel", logCard)
+logTitle.Size = UDim2.new(0.7, 0, 0, 18)
+logTitle.Position = UDim2.new(0, 8, 0, 4)
+logTitle.BackgroundTransparency = 1
+logTitle.Text = "REDEEMED CODE RESULT"
+logTitle.Font = Enum.Font.GothamBold
+logTitle.TextSize = 9
+logTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+logTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local clearBtn = Instance.new("TextButton", logCard)
+clearBtn.Size = UDim2.new(0, 44, 0, 16)
+clearBtn.Position = UDim2.new(1, -50, 0, 5)
+clearBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+clearBtn.Text = "CLEAR"
+clearBtn.Font = Enum.Font.GothamBold
+clearBtn.TextSize = 8
+clearBtn.TextColor3 = Color3.fromRGB(10, 10, 10)
+Instance.new("UICorner", clearBtn).CornerRadius = UDim.new(0, 4)
+
+local scroll = Instance.new("ScrollingFrame", logCard)
+scroll.Size = UDim2.new(1, -14, 1, -26)
+scroll.Position = UDim2.new(0, 7, 0, 22)
+scroll.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
+scroll.BorderSizePixel = 0
+scroll.ScrollBarThickness = 3
+scroll.ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255)
+scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+Instance.new("UICorner", scroll).CornerRadius = UDim.new(0, 6)
+
+local layout = Instance.new("UIListLayout", scroll)
+layout.Padding = UDim.new(0, 2)
+
+local function Log(text, bright)
+    local row = Instance.new("TextLabel")
+    row.Size = UDim2.new(1, -6, 0, 14)
+    row.BackgroundTransparency = 1
+    row.Text = "  " .. tostring(text)
+    row.Font = Enum.Font.Code
+    row.TextSize = 10
+    row.TextColor3 = bright and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(165, 165, 165)
+    row.TextXAlignment = Enum.TextXAlignment.Left
+    row.Parent = scroll
+    scroll.CanvasPosition = Vector2.new(0, 99999)
+end
+
+Log("ION HUB 100% READY (Steal a Brainrot)", true)
+Log("Detects: 'code is', 'the code is', 'use code'...", false)
+
+-- MANUAL CODE & RIDDLE
+local codeBox = Instance.new("TextBox", MainPage)
+codeBox.Size = UDim2.new(1, -74, 0, 25)
+codeBox.Position = UDim2.new(0, 0, 0, 282)
+codeBox.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+codeBox.PlaceholderText = "Code Here..."
+codeBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 120)
+codeBox.Text = ""
+codeBox.Font = Enum.Font.GothamBold
+codeBox.TextSize = 11
+codeBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", codeBox).CornerRadius = UDim.new(0, 6)
+Instance.new("UIStroke", codeBox).Color = Color3.fromRGB(80, 80, 80)
+
+local redeemBtn = Instance.new("TextButton", MainPage)
+redeemBtn.Size = UDim2.new(0, 68, 0, 25)
+redeemBtn.Position = UDim2.new(1, -68, 0, 282)
+redeemBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+redeemBtn.Text = "REDEEM"
+redeemBtn.Font = Enum.Font.GothamBlack
+redeemBtn.TextSize = 10
+redeemBtn.TextColor3 = Color3.fromRGB(10, 10, 10)
+Instance.new("UICorner", redeemBtn).CornerRadius = UDim.new(0, 6)
+
+local riddleBox = Instance.new("TextBox", MainPage)
+riddleBox.Size = UDim2.new(1, -74, 0, 25)
+riddleBox.Position = UDim2.new(0, 0, 0, 312)
+riddleBox.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+riddleBox.PlaceholderText = "Ask AI / test a riddle..."
+riddleBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 120)
+riddleBox.Text = ""
+riddleBox.Font = Enum.Font.Gotham
+riddleBox.TextSize = 10
+riddleBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", riddleBox).CornerRadius = UDim.new(0, 6)
+Instance.new("UIStroke", riddleBox).Color = Color3.fromRGB(80, 80, 80)
+
+local solveBtn = Instance.new("TextButton", MainPage)
+solveBtn.Size = UDim2.new(0, 68, 0, 25)
+solveBtn.Position = UDim2.new(1, -68, 0, 312)
+solveBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+solveBtn.Text = "SOLVE"
+solveBtn.Font = Enum.Font.GothamBlack
+solveBtn.TextSize = 10
+solveBtn.TextColor3 = Color3.fromRGB(10, 10, 10)
+Instance.new("UICorner", solveBtn).CornerRadius = UDim.new(0, 6)
+
+local footLbl = Instance.new("TextLabel", BodyContainer)
+footLbl.Size = UDim2.new(1, 0, 0, 14)
+footLbl.Position = UDim2.new(0, 0, 1, -15)
+footLbl.BackgroundTransparency = 1
+footLbl.Text = "ION HUB 100%  •  CODE REDEEMER"
+footLbl.Font = Enum.Font.GothamBold
+footLbl.TextSize = 8
+footLbl.TextColor3 = Color3.fromRGB(145, 145, 145)
+
+-- HELPER TAB
+local hInfo = Instance.new("TextLabel", HelperPage)
+hInfo.
